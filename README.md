@@ -119,4 +119,4 @@ VIDEO/AUDIO FILE (browser)
 
 ## 📄 License
 
-MIT © 2025 **Aisha Tariq Khan**
+MIT © 2026 **Aisha Tariq Khan**
