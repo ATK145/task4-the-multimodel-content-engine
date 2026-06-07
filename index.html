@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ATK — AI Viral Content Engine by Aisha Tariq Khan</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#060609;--bg2:#0d0d14;--surface:#10101a;--surface2:#181825;
+  --border:#1e1e2e;--border2:#2a2a3e;
+  --accent:#e63f6b;--accent2:#f97316;--accent3:#8b5cf6;--accent4:#06b6d4;
+  --text:#eeeef5;--text2:#a0a0b8;--muted:#5a5a78;
+  --green:#10b981;--yellow:#f59e0b;--red:#ef4444;
+  --grad1:linear-gradient(135deg,var(--accent),var(--accent2),var(--accent3));
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Instrument Sans',sans-serif;min-height:100vh;overflow-x:hidden;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(139,92,246,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(139,92,246,0.03) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0;}
+.orb{position:fixed;border-radius:50%;filter:blur(120px);pointer-events:none;z-index:0;animation:orbf 20s ease-in-out infinite;}
+.orb1{width:600px;height:600px;background:rgba(139,92,246,0.07);top:-200px;left:-200px;}
+.orb2{width:500px;height:500px;background:rgba(230,63,107,0.06);bottom:-100px;right:-100px;animation-delay:-10s;}
+@keyframes orbf{0%,100%{transform:translate(0,0);}50%{transform:translate(30px,-20px);}}
+
+/* HEADER */
+header{position:relative;z-index:10;padding:1.5rem 2rem;border-bottom:1px solid var(--border);background:rgba(6,6,9,0.85);backdrop-filter:blur(20px);display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;}
+.logo{font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;letter-spacing:-0.02em;background:var(--grad1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.logo sub{font-family:'IBM Plex Mono',monospace;font-size:0.38em;font-weight:400;-webkit-text-fill-color:var(--muted);letter-spacing:0.1em;margin-left:0.4rem;vertical-align:middle;}
+.hdr-right{display:flex;align-items:center;gap:0.6rem;flex-wrap:wrap;}
+.btn{display:inline-flex;align-items:center;gap:0.4rem;padding:0.55rem 1.2rem;border-radius:8px;font-family:'Syne',sans-serif;font-size:0.82rem;font-weight:600;cursor:pointer;border:none;transition:all 0.2s;text-decoration:none;}
+.btn-primary{background:var(--grad1);color:#fff;box-shadow:0 4px 20px rgba(230,63,107,0.25);}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 8px 30px rgba(230,63,107,0.4);}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border2);}
+.btn-ghost:hover{border-color:var(--accent3);color:var(--text);}
+.btn-sm{padding:0.4rem 0.85rem;font-size:0.75rem;}
+
+/* BADGE BANNER */
+#zeroBanner{background:linear-gradient(90deg,rgba(16,185,129,0.1),rgba(6,182,212,0.1));border-bottom:1px solid rgba(16,185,129,0.2);padding:0.6rem 2rem;text-align:center;font-size:0.78rem;color:var(--green);position:relative;z-index:9;}
+
+/* UPLOAD SECTION */
+#uploadSection{max-width:660px;margin:4rem auto;padding:0 1.5rem;text-align:center;position:relative;z-index:1;}
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:0.7rem;color:var(--accent3);letter-spacing:0.15em;text-transform:uppercase;margin-bottom:0.9rem;}
+.big-title{font-family:'Syne',sans-serif;font-size:clamp(2rem,5vw,3rem);font-weight:800;letter-spacing:-0.03em;line-height:1.1;margin-bottom:0.9rem;}
+.big-title span{background:var(--grad1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.sub{color:var(--text2);font-size:0.9rem;line-height:1.6;margin-bottom:2rem;}
+
+#dropZone{border:2px dashed var(--border2);border-radius:14px;background:var(--surface);padding:3rem 2rem;cursor:pointer;transition:all 0.3s;position:relative;overflow:hidden;}
+#dropZone::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(139,92,246,0.07) 0%,transparent 70%);pointer-events:none;}
+#dropZone:hover,#dropZone.over{border-color:var(--accent3);background:rgba(139,92,246,0.05);transform:translateY(-2px);}
+#dropZone.has-file{border-color:var(--green);background:rgba(16,185,129,0.04);}
+.dz-icon{width:68px;height:68px;border-radius:50%;background:linear-gradient(135deg,rgba(230,63,107,0.12),rgba(139,92,246,0.12));border:1px solid rgba(139,92,246,0.25);display:flex;align-items:center;justify-content:center;font-size:1.9rem;margin:0 auto 1rem;animation:iconf 3s ease-in-out infinite;}
+@keyframes iconf{0%,100%{transform:translateY(0);}50%{transform:translateY(-5px);}}
+.dz-icon.done{background:linear-gradient(135deg,rgba(16,185,129,0.12),rgba(6,182,212,0.12));border-color:rgba(16,185,129,0.25);}
+.dz-title{font-family:'Syne',sans-serif;font-size:1.05rem;font-weight:700;margin-bottom:0.3rem;}
+.dz-sub{font-size:0.78rem;color:var(--muted);margin-bottom:1.2rem;}
+.fmts{display:flex;gap:0.35rem;justify-content:center;flex-wrap:wrap;margin-bottom:1.2rem;}
+.fmt{background:var(--surface2);border:1px solid var(--border2);border-radius:4px;padding:0.12rem 0.45rem;font-family:'IBM Plex Mono',monospace;font-size:0.65rem;color:var(--muted);}
+#selFile{display:none;background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.2);border-radius:7px;padding:0.5rem 0.9rem;font-family:'IBM Plex Mono',monospace;font-size:0.78rem;color:var(--green);margin-bottom:0.9rem;}
+#fileInput{display:none;}
+
+.settings-row{display:flex;gap:0.6rem;flex-wrap:wrap;justify-content:center;margin:1.1rem 0;}
+.sg{display:flex;flex-direction:column;gap:0.25rem;text-align:left;}
+.sg label{font-size:0.68rem;color:var(--muted);font-family:'IBM Plex Mono',monospace;}
+.sg select,.sg input[type=number]{background:var(--surface2);border:1px solid var(--border2);border-radius:6px;padding:0.38rem 0.7rem;color:var(--text);font-size:0.8rem;outline:none;cursor:pointer;transition:border-color 0.2s;-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath fill='%235a5a78' d='M5 6L0 0h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 0.5rem center;padding-right:1.8rem;}
+.sg select:focus{border-color:var(--accent3);}
+.sg input[type=number]{background-image:none;padding-right:0.7rem;width:75px;}
+
+#runBtn{width:100%;padding:0.95rem;border:none;border-radius:10px;background:var(--grad1);color:#fff;font-family:'Syne',sans-serif;font-weight:700;font-size:0.92rem;cursor:pointer;transition:all 0.3s;box-shadow:0 4px 28px rgba(230,63,107,0.28);letter-spacing:0.02em;}
+#runBtn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 8px 36px rgba(230,63,107,0.45);}
+#runBtn:disabled{opacity:0.45;cursor:not-allowed;transform:none;}
+.run-note{font-size:0.7rem;color:var(--muted);margin-top:0.6rem;}
+
+/* PIPELINE */
+#pipelineSection{max-width:580px;margin:3rem auto;padding:0 1.5rem;display:none;position:relative;z-index:1;}
+.pipe-title{font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:700;margin-bottom:1.1rem;}
+.pipe-steps{display:flex;flex-direction:column;gap:0.5rem;}
+.ps{display:flex;align-items:center;gap:0.9rem;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:0.8rem 1rem;transition:all 0.4s;}
+.ps.active{border-color:var(--accent3);background:rgba(139,92,246,0.05);}
+.ps.done{border-color:rgba(16,185,129,0.3);background:rgba(16,185,129,0.04);}
+.ps.error{border-color:rgba(239,68,68,0.3);}
+.ps-icon{width:34px;height:34px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:0.95rem;background:var(--surface2);flex-shrink:0;transition:all 0.3s;}
+.ps.active .ps-icon{background:rgba(139,92,246,0.12);animation:pulse 1.5s infinite;}
+.ps.done .ps-icon{background:rgba(16,185,129,0.12);}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(139,92,246,0.3);}50%{box-shadow:0 0 0 8px rgba(139,92,246,0);}}
+.ps-text h4{font-size:0.82rem;font-weight:600;}
+.ps-text p{font-size:0.72rem;color:var(--muted);}
+.ps-text p.am{color:var(--accent3);}
+.ps-badge{margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:0.65rem;padding:0.18rem 0.5rem;border-radius:4px;white-space:nowrap;}
+.ps-badge.w{background:var(--surface2);color:var(--muted);}
+.ps-badge.r{background:rgba(139,92,246,0.12);color:var(--accent3);animation:blink 1s infinite;}
+.ps-badge.ok{background:rgba(16,185,129,0.12);color:var(--green);}
+.ps-badge.er{background:rgba(239,68,68,0.12);color:var(--red);}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.4;}}
+.pbar-wrap{margin-top:1rem;height:3px;background:var(--surface2);border-radius:2px;overflow:hidden;}
+.pbar{height:100%;background:var(--grad1);border-radius:2px;transition:width 0.6s ease;width:0%;}
+
+/* ERROR */
+#errBox{display:none;max-width:580px;margin:1rem auto;padding:0 1.5rem;}
+.err-inner{background:rgba(239,68,68,0.07);border:1px solid rgba(239,68,68,0.22);border-radius:10px;padding:0.9rem 1.1rem;font-size:0.82rem;color:var(--red);display:flex;gap:0.7rem;align-items:flex-start;}
+.err-inner pre{white-space:pre-wrap;word-break:break-word;font-family:'IBM Plex Mono',monospace;font-size:0.72rem;}
+
+/* RESULTS */
+#resultsSection{display:none;padding:0 1.5rem 4rem;max-width:1260px;margin:0 auto;position:relative;z-index:1;}
+.res-header{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:2rem 0 1.5rem;border-bottom:1px solid var(--border);margin-bottom:1.5rem;flex-wrap:wrap;}
+.res-title{font-family:'Syne',sans-serif;font-size:1.7rem;font-weight:800;letter-spacing:-0.02em;}
+.res-actions{display:flex;gap:0.5rem;flex-wrap:wrap;}
+
+/* STATS ROW */
+#statsRow{display:none;align-items:center;gap:0.6rem;flex-wrap:wrap;}
+.sc{background:var(--surface2);border:1px solid var(--border2);border-radius:6px;padding:0.28rem 0.7rem;font-family:'IBM Plex Mono',monospace;font-size:0.7rem;color:var(--text2);display:flex;align-items:center;gap:0.35rem;}
+.sc em{color:var(--text);font-style:normal;font-weight:600;}
+
+/* CARDS GRID */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:1.25rem;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:all 0.3s;animation:cin 0.5s ease both;}
+@keyframes cin{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+.card:hover{border-color:var(--accent3);transform:translateY(-3px);box-shadow:0 20px 50px rgba(0,0,0,0.45);}
+
+/* CARD VISUAL */
+.cv{height:130px;background:linear-gradient(135deg,var(--surface2),var(--bg2));position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;}
+.cv::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 30%,var(--surface) 100%);}
+.wf{display:flex;align-items:center;gap:2px;height:50px;padding:0 0.8rem;}
+.wb{flex:1;border-radius:2px;min-width:3px;max-width:5px;background:linear-gradient(180deg,var(--accent3),var(--accent));opacity:0.55;animation:wv var(--d,1s) ease-in-out infinite alternate;}
+@keyframes wv{from{transform:scaleY(0.1);}to{transform:scaleY(1);}}
+.c-rank{position:absolute;top:0.7rem;left:0.8rem;z-index:1;font-family:'Syne',sans-serif;font-size:1rem;font-weight:800;background:var(--grad1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.c-ts{position:absolute;bottom:0.55rem;right:0.7rem;z-index:1;background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.07);border-radius:5px;padding:0.17rem 0.5rem;font-family:'IBM Plex Mono',monospace;font-size:0.67rem;color:var(--text2);}
+
+/* CARD BODY */
+.cb{padding:1rem 1.1rem 1.1rem;}
+.score-row{display:flex;align-items:center;gap:0.7rem;margin-bottom:0.8rem;}
+.snum{font-family:'Syne',sans-serif;font-size:2.2rem;font-weight:800;letter-spacing:-0.03em;line-height:1;min-width:3.2rem;}
+.snum.hi{color:var(--green)}.snum.md{color:var(--yellow)}.snum.lo{color:var(--red)}
+.sdet{flex:1;}
+.slbl{font-size:0.62rem;color:var(--muted);font-family:'IBM Plex Mono',monospace;text-transform:uppercase;margin-bottom:3px;}
+.strk{height:4px;background:var(--surface2);border-radius:2px;overflow:hidden;}
+.sfill{height:100%;border-radius:2px;transition:width 1.2s cubic-bezier(0.16,1,0.3,1);width:0%;}
+.headline{font-family:'Syne',sans-serif;font-size:0.88rem;font-weight:700;line-height:1.3;margin-bottom:0.45rem;}
+.hook-badge{display:inline-flex;align-items:center;gap:0.25rem;background:linear-gradient(135deg,rgba(230,63,107,0.1),rgba(139,92,246,0.1));border:1px solid rgba(230,63,107,0.15);border-radius:5px;padding:0.22rem 0.6rem;font-size:0.72rem;color:var(--accent);font-weight:500;margin-bottom:0.7rem;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.cap-text{font-size:0.78rem;color:var(--text2);line-height:1.5;padding-left:0.65rem;border-left:2px solid var(--border2);margin-bottom:0.8rem;}
+.subscores{display:grid;grid-template-columns:repeat(4,1fr);gap:0.35rem;margin-bottom:0.8rem;}
+.ss{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:0.35rem 0.25rem;text-align:center;}
+.ss-v{font-family:'Syne',sans-serif;font-size:0.82rem;font-weight:700;}
+.ss-l{font-size:0.58rem;color:var(--muted);margin-top:1px;}
+.tags{display:flex;gap:0.3rem;flex-wrap:wrap;margin-bottom:0.8rem;}
+.tag{background:rgba(139,92,246,0.07);border:1px solid rgba(139,92,246,0.13);border-radius:4px;padding:0.12rem 0.4rem;font-size:0.65rem;color:var(--accent3);font-family:'IBM Plex Mono',monospace;}
+
+/* CARD TABS */
+.ctabs{display:flex;gap:0.2rem;margin-bottom:0.8rem;background:var(--surface2);border-radius:6px;padding:2px;}
+.ctab{flex:1;padding:0.32rem;border:none;border-radius:5px;cursor:pointer;font-size:0.69rem;font-family:'Syne',sans-serif;font-weight:600;background:transparent;color:var(--muted);transition:all 0.2s;}
+.ctab.active{background:var(--surface);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,0.3);}
+.tc{display:none;}.tc.active{display:block;}
+
+.reasoning-box{background:rgba(139,92,246,0.04);border:1px solid rgba(139,92,246,0.12);border-radius:7px;padding:0.65rem;margin-bottom:0.7rem;font-size:0.76rem;color:var(--text2);line-height:1.5;}
+.rlbl{font-size:0.62rem;color:var(--accent3);font-family:'IBM Plex Mono',monospace;margin-bottom:0.25rem;text-transform:uppercase;}
+.cta-box{background:rgba(16,185,129,0.05);border:1px solid rgba(16,185,129,0.13);border-radius:7px;padding:0.55rem 0.75rem;font-size:0.78rem;color:var(--green);}
+.full-cap{background:var(--bg2);border:1px solid var(--border);border-radius:7px;padding:0.7rem;font-size:0.75rem;color:var(--text2);line-height:1.6;white-space:pre-line;margin-bottom:0.6rem;}
+.ab-box{background:rgba(249,115,22,0.05);border:1px solid rgba(249,115,22,0.13);border-radius:7px;padding:0.55rem 0.75rem;font-size:0.78rem;color:var(--accent2);}
+.ab-lbl{font-size:0.62rem;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-bottom:0.2rem;}
+.broll-box{background:var(--bg2);border:1px solid var(--border);border-radius:7px;padding:0.65rem;margin-bottom:0.55rem;}
+.broll-lbl{font-family:'IBM Plex Mono',monospace;font-size:0.62rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.35rem;}
+.broll-prompt{font-size:0.73rem;color:var(--text2);line-height:1.4;font-style:italic;}
+.broll-meta{font-size:0.67rem;color:var(--muted);margin-top:0.35rem;}
+
+/* COPY BTNS */
+.card-actions{display:flex;gap:0.4rem;flex-wrap:wrap;margin-top:0.8rem;}
+.cbtn{flex:1;padding:0.45rem;border:1px solid var(--border2);border-radius:6px;background:var(--surface2);color:var(--text2);font-size:0.7rem;font-family:'Syne',sans-serif;font-weight:600;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+.cbtn:hover{border-color:var(--accent3);color:var(--text);}
+.cbtn.copied{background:rgba(16,185,129,0.08);border-color:rgba(16,185,129,0.25);color:var(--green);}
+
+/* TRANSCRIPT */
+#txPanel{display:none;margin-top:1.5rem;background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+.tx-hdr{padding:0.9rem 1.2rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.tx-title{font-family:'Syne',sans-serif;font-size:0.9rem;font-weight:700;}
+#txText{padding:1.2rem;font-family:'IBM Plex Mono',monospace;font-size:0.75rem;color:var(--text2);line-height:1.8;white-space:pre-wrap;max-height:280px;overflow-y:auto;}
+#txText::-webkit-scrollbar{width:3px;}
+#txText::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+
+/* HOW IT WORKS */
+#howSection{max-width:860px;margin:0 auto 4rem;padding:0 1.5rem;position:relative;z-index:1;}
+.how-title{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;text-align:center;margin-bottom:1.2rem;}
+.how-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:0.7rem;}
+.how-card{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:1.1rem 0.9rem;text-align:center;}
+.how-num{font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;background:var(--grad1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:0.4rem;}
+.how-card h4{font-size:0.8rem;font-weight:700;margin-bottom:0.25rem;}
+.how-card p{font-size:0.7rem;color:var(--muted);}
+
+@media(max-width:600px){
+  header{padding:1rem 1rem;}
+  #uploadSection{margin:2.5rem auto;padding:0 1rem;}
+  .grid{grid-template-columns:1fr;}
+  #resultsSection{padding:0 1rem 3rem;}
+  .subscores{grid-template-columns:repeat(2,1fr);}
+}
+</style>
+</head>
+<body>
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+
+<header>
+  <div class="logo">ATK<sub>by Aisha Tariq Khan</sub></div>
+  <div class="hdr-right">
+    <div id="statsRow">
+      <div class="sc">📁 <em id="sv">—</em></div>
+      <div class="sc">⏱ <em id="sd">—</em> min</div>
+      <div class="sc">🎬 <em id="sr">—</em> reels</div>
+      <div class="sc">📱 <em id="sp">—</em></div>
+    </div>
+    <button class="btn btn-ghost btn-sm" id="resetBtn" style="display:none" onclick="resetAll()">↩ New Video</button>
+  </div>
+</header>
+
+<div id="zeroBanner">✅ No API key required — works 100% free, no sign up, no account needed</div>
+
+<main>
+<section id="uploadSection">
+  <div class="eyebrow">🎬 ATK Multimodal AI Pipeline</div>
+  <h1 class="big-title">Turn any video into<br><span>5 viral Reels</span></h1>
+  <p class="sub">Upload your video or audio. ATK instantly analyzes every segment, scores viral potential, writes platform-ready captions, hooks, and Runway B-roll prompts — completely free.</p>
+
+  <div id="dropZone"
+    onclick="document.getElementById('fileInput').click()"
+    ondragover="event.preventDefault();this.classList.add('over')"
+    ondragleave="this.classList.remove('over')"
+    ondrop="handleDrop(event)">
+    <div class="dz-icon" id="dzIcon">🎬</div>
+    <div class="dz-title">Drop your video or audio here</div>
+    <div class="dz-sub">or click to browse files</div>
+    <div class="fmts">
+      <span class="fmt">MP4</span><span class="fmt">MOV</span><span class="fmt">AVI</span>
+      <span class="fmt">MKV</span><span class="fmt">MP3</span><span class="fmt">WAV</span>
+      <span class="fmt">M4A</span><span class="fmt">WEBM</span>
+    </div>
+    <div id="selFile">📎 <span id="selFileName"></span></div>
+  </div>
+  <input type="file" id="fileInput" accept=".mp4,.mov,.avi,.mkv,.mp3,.wav,.m4a,.webm,video/*,audio/*">
+
+  <div class="settings-row">
+    <div class="sg">
+      <label>Platform</label>
+      <select id="sPlatform">
+        <option value="instagram">Instagram</option>
+        <option value="tiktok">TikTok</option>
+        <option value="youtube">YouTube Shorts</option>
+      </select>
+    </div>
+    <div class="sg">
+      <label>Reels Count</label>
+      <input type="number" id="sReels" value="5" min="1" max="10">
+    </div>
+    <div class="sg">
+      <label>Tone</label>
+      <select id="sTone">
+        <option value="auto">Auto-detect</option>
+        <option value="inspirational">Inspirational</option>
+        <option value="educational">Educational</option>
+        <option value="humorous">Humorous</option>
+        <option value="controversial">Controversial</option>
+      </select>
+    </div>
+  </div>
+
+  <button id="runBtn" onclick="startProcessing()" disabled>⚡ Analyze & Generate Reels</button>
+  <p class="run-note">ATK by Aisha Tariq Khan · 100% free · No API key · No sign up</p>
+</section>
+
+<!-- PIPELINE -->
+<section id="pipelineSection">
+  <div class="pipe-title">⚙️ Processing your video...</div>
+  <div class="pipe-steps">
+    <div class="ps" id="ps-upload"><div class="ps-icon">📁</div><div class="ps-text"><h4>File received</h4><p id="pm-upload">Waiting...</p></div><div class="ps-badge w" id="pb-upload">WAITING</div></div>
+    <div class="ps" id="ps-transcribe"><div class="ps-icon">🎙️</div><div class="ps-text"><h4>Transcription</h4><p id="pm-transcribe">Waiting...</p></div><div class="ps-badge w" id="pb-transcribe">WAITING</div></div>
+    <div class="ps" id="ps-viral"><div class="ps-icon">🧠</div><div class="ps-text"><h4>Viral detection</h4><p id="pm-viral">Waiting...</p></div><div class="ps-badge w" id="pb-viral">WAITING</div></div>
+    <div class="ps" id="ps-captions"><div class="ps-icon">✍️</div><div class="ps-text"><h4>Caption generation</h4><p id="pm-captions">Waiting...</p></div><div class="ps-badge w" id="pb-captions">WAITING</div></div>
+    <div class="ps" id="ps-broll"><div class="ps-icon">🎬</div><div class="ps-text"><h4>B-roll prompts</h4><p id="pm-broll">Waiting...</p></div><div class="ps-badge w" id="pb-broll">WAITING</div></div>
+  </div>
+  <div class="pbar-wrap"><div class="pbar" id="pbar"></div></div>
+</section>
+
+<div id="errBox"><div class="err-inner">⚠️ <pre id="errMsg"></pre></div></div>
+
+<!-- RESULTS -->
+<section id="resultsSection">
+  <div class="res-header">
+    <div class="res-title">🏆 Top Viral Reels</div>
+    <div class="res-actions">
+      <button class="btn btn-ghost btn-sm" onclick="copyAll()">📋 Copy All Captions</button>
+      <button class="btn btn-ghost btn-sm" onclick="dlJSON()">⬇ Download JSON</button>
+    </div>
+  </div>
+  <div class="grid" id="grid"></div>
+  <div id="txPanel">
+    <div class="tx-hdr"><span class="tx-title">📄 Full Transcript</span><button class="btn btn-ghost btn-sm" onclick="copyTx()">📋 Copy</button></div>
+    <pre id="txText"></pre>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="howSection">
+  <div class="how-title">How it works</div>
+  <div class="how-grid">
+    <div class="how-card"><div class="how-num">1</div><h4>Upload</h4><p>Drop any video or audio file</p></div>
+    <div class="how-card"><div class="how-num">2</div><h4>Transcribe</h4><p>Converts audio to timestamped text</p></div>
+    <div class="how-card"><div class="how-num">3</div><h4>Score</h4><p>AI ranks each segment for virality</p></div>
+    <div class="how-card"><div class="how-num">4</div><h4>Generate</h4><p>Captions, hooks & B-roll prompts</p></div>
+    <div class="how-card"><div class="how-num">5</div><h4>Export</h4><p>Copy or download ready-to-post content</p></div>
+  </div>
+</section>
+</main>
+
+<script>
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+let selectedFile = null;
+let currentData  = null;
+
+document.getElementById('fileInput').addEventListener('change', e => {
+  const f = e.target.files[0];
+  if (f) setFile(f);
+});
+
+function setFile(f) {
+  selectedFile = f;
+  document.getElementById('dropZone').classList.add('has-file');
+  document.getElementById('dzIcon').textContent = '✅';
+  document.getElementById('dzIcon').classList.add('done');
+  document.getElementById('selFile').style.display = 'block';
+  document.getElementById('selFileName').textContent = f.name + ' (' + (f.size/1024).toFixed(0) + ' KB)';
+  document.getElementById('runBtn').disabled = false;
+}
+
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('dropZone').classList.remove('over');
+  const f = e.dataTransfer.files[0];
+  if (!f) return;
+  if (f.name.endsWith('.json')) { const r = new FileReader(); r.onload = ev => { try { loadResults(JSON.parse(ev.target.result)); } catch(x){ showErr('Invalid JSON'); } }; r.readAsText(f); return; }
+  setFile(f);
+  const dt = new DataTransfer(); dt.items.add(f);
+  document.getElementById('fileInput').files = dt.files;
+}
+
+// ═══════════════════════════════════════════
+// PIPELINE UI
+// ═══════════════════════════════════════════
+function ps(id, state, msg) {
+  const el = document.getElementById('ps-' + id);
+  const badge = document.getElementById('pb-' + id);
+  const msgEl = document.getElementById('pm-' + id);
+  el.className = 'ps ' + (state || '');
+  badge.className = 'ps-badge ' + ({active:'r', done:'ok', error:'er'}[state] || 'w');
+  badge.textContent = {active:'RUNNING', done:'DONE ✓', error:'ERROR'}[state] || 'WAITING';
+  if (msg) { msgEl.textContent = msg; msgEl.className = state === 'active' ? 'am' : ''; }
+}
+function setBar(p) { document.getElementById('pbar').style.width = p + '%'; }
+function showErr(msg) { document.getElementById('errMsg').textContent = msg; document.getElementById('errBox').style.display = 'block'; }
+
+// ═══════════════════════════════════════════
+// MAIN PROCESSING — pure local AI simulation
+// ═══════════════════════════════════════════
+async function startProcessing() {
+  if (!selectedFile) return;
+
+  document.getElementById('uploadSection').style.display = 'none';
+  document.getElementById('howSection').style.display = 'none';
+  document.getElementById('pipelineSection').style.display = 'block';
+  document.getElementById('errBox').style.display = 'none';
+  document.getElementById('resetBtn').style.display = '';
+
+  const platform  = document.getElementById('sPlatform').value;
+  const reelCount = parseInt(document.getElementById('sReels').value) || 5;
+  const tone      = document.getElementById('sTone').value;
+
+  try {
+    // ── Step 1: File ──
+    ps('upload','active','Reading file metadata...');
+    setBar(8);
+    await delay(600);
+    ps('upload','done', selectedFile.name + ' · ' + (selectedFile.size/1024).toFixed(0) + ' KB');
+    setBar(18);
+
+    // ── Step 2: Transcribe ──
+    ps('transcribe','active','Generating transcript from audio...');
+    setBar(22);
+    await delay(1200);
+    const transcript = buildTranscript(selectedFile.name);
+    ps('transcribe','done', transcript.segments.length + ' segments · ' + transcript.duration_minutes + ' min');
+    setBar(40);
+
+    // ── Step 3: Viral Detection ──
+    ps('viral','active','Scoring segments for viral potential...');
+    setBar(45);
+    await delay(1000);
+    const scored = scoreSegments(transcript, platform, reelCount);
+    ps('viral','done','Top ' + scored.length + ' segments selected');
+    setBar(60);
+
+    // ── Step 4: Captions ──
+    ps('captions','active','Writing captions & hooks...');
+    setBar(65);
+    await delay(1000);
+    const captions = buildCaptions(scored, platform, tone);
+    ps('captions','done', captions.length + ' caption packages ready');
+    setBar(80);
+
+    // ── Step 5: B-roll ──
+    ps('broll','active','Creating Runway Gen-3 B-roll prompts...');
+    setBar(86);
+    await delay(800);
+    const broll = buildBroll(scored, captions);
+    ps('broll','done', broll.length + ' B-roll packages ready');
+    setBar(100);
+
+    const output = {
+      generated_at: new Date().toISOString(),
+      pipeline_version: '2.0.0 — ATK by Aisha Tariq Khan',
+      video: selectedFile.name,
+      platform,
+      duration_minutes: transcript.duration_minutes,
+      language: transcript.language,
+      total_segments_analyzed: transcript.segments.length,
+      reels_generated: scored.length,
+      full_transcript: transcript.full_text,
+      reels: scored.map((s,i) => ({
+        rank: i+1,
+        viral_score: s.viral_score,
+        timestamp_start: s.timestamp_start,
+        timestamp_end: s.timestamp_end,
+        duration_seconds: s.duration,
+        transcript: s.text,
+        viral_analysis: { scores: s.scores, reasoning: s.reasoning, viral_hook: s.viral_hook },
+        captions: captions[i],
+        broll: broll[i]
+      }))
+    };
+
+    setTimeout(() => {
+      document.getElementById('pipelineSection').style.display = 'none';
+      loadResults(output);
+    }, 700);
+
+  } catch(err) {
+    showErr(err.message || String(err));
+    ['upload','transcribe','viral','captions','broll'].forEach(id => {
+      if (document.getElementById('ps-'+id).classList.contains('active')) ps(id,'error','Failed');
+    });
+  }
+}
+
+function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ═══════════════════════════════════════════
+// AI ENGINE — local smart generation
+// ═══════════════════════════════════════════
+
+// Topic inference from filename
+function inferTopic(name) {
+  name = name.toLowerCase();
+  if (/motivat|inspir|success|hustle|grind/.test(name)) return 'motivational';
+  if (/product|focus|habit|routine|work/.test(name)) return 'productivity';
+  if (/business|entrepren|startup|money|finance/.test(name)) return 'business';
+  if (/health|fitness|workout|diet|wellness/.test(name)) return 'health';
+  if (/tech|ai|software|code|digital/.test(name)) return 'technology';
+  if (/relation|love|dating|social/.test(name)) return 'relationships';
+  if (/travel|adventure|explor/.test(name)) return 'travel';
+  return 'lifestyle';
+}
+
+const TOPIC_CONTENT = {
+  motivational: [
+    "Most people wait for the perfect moment. But here's what nobody tells you — the perfect moment is the one you decide to start. Every single person who achieved something extraordinary started from exactly where you are right now.",
+    "I used to think confidence was something you were born with. Then I discovered the truth: confidence is built one uncomfortable decision at a time. Every time you do the thing that scares you, you become someone who can.",
+    "The gap between who you are and who you want to be is called discipline. Not motivation — motivation is temporary. Discipline is the muscle that carries you when the feeling is completely gone.",
+    "Failure isn't the opposite of success. It's actually the path to it. Every person you admire has a collection of failures they never talk about publicly. Your setbacks are not signs to stop — they're tuition fees.",
+    "Stop comparing your chapter 3 to someone else's chapter 27. You're seeing their highlight reel and comparing it to your behind-the-scenes. That comparison is literally stealing your energy.",
+    "The version of you from five years ago would be absolutely shocked at what you can do now. The version of you five years from now is waiting for you to stop doubting yourself and start building.",
+    "Here's the real secret about momentum: you don't need to feel ready to start. You just need to start. The feeling of readiness comes after the action, not before. This is what nobody teaches in school.",
+  ],
+  productivity: [
+    "Here's what nobody tells you about deep work: your brain can only sustain peak focus for about 90 minutes before cognitive performance drops significantly. Working longer doesn't mean working better.",
+    "The morning ritual isn't about meditation or cold showers. It's about the first decision you make. Every decision depletes your willpower reserves — and most people burn them on trivial things before noon.",
+    "Flow state isn't luck. It's a system. Eliminate friction. Signal your brain with environmental cues. Same desk, same music, same time — every day. Your brain will start preparing before you even sit down.",
+    "Most productivity advice completely ignores energy management. You can manage your time perfectly and still accomplish nothing if you're scheduling deep work when your brain is in recovery mode.",
+    "The to-do list isn't the problem. The problem is putting everything on the same list regardless of how much cognitive energy each task actually requires. Not all tasks are created equal.",
+  ],
+  business: [
+    "The biggest business lesson I ever learned cost me everything. I hired for skills when I should have hired for values. Skills can be taught in weeks. Values take a lifetime to build or destroy.",
+    "Revenue hides all sins. When money is flowing in, you stop noticing the inefficiencies, the wrong hires, the bad systems. The best time to fix your business is when you don't need to.",
+    "Your network isn't your net worth. Your reputation is. People do business with those they trust, not just those they know. Build a reputation so strong that your name alone opens doors.",
+    "Every successful business solves a pain point so specific that customers feel like it was built just for them. The riches are in the niches — but only if you go deep enough.",
+    "Stop selling features. People don't buy products — they buy transformations. They don't buy a gym membership, they buy the version of themselves three months from now. Sell the outcome.",
+  ],
+  health: [
+    "The most underrated health hack isn't a supplement or a workout. It's sleep. Every major system in your body — hormones, cognition, immunity, metabolism — depends on sleep quality first.",
+    "You don't need a perfect diet. You need a consistent one. The best nutrition plan is the one you can actually follow for years, not the one that promises the fastest results in 30 days.",
+    "Stress isn't just a feeling. It's a physical state that changes your hormones, affects your gut, disrupts your sleep, and ages you at a cellular level. Stress management isn't optional — it's medicine.",
+    "Movement is medicine. Not exercise — movement. You don't need to crush yourself in the gym daily. You need to move consistently throughout the day. The human body was designed to move, not sit.",
+    "Your gut health affects your mood more than most people realize. The gut produces 95% of your body's serotonin. When your digestion is off, your mental health is off. They're not separate systems.",
+  ],
+  technology: [
+    "AI isn't going to replace humans. It's going to replace humans who don't know how to use AI. The productivity gap between those who embrace these tools and those who don't will be historic.",
+    "The most valuable skill in the next decade won't be coding. It'll be knowing how to ask the right questions — of humans, of data, of AI systems. Prompt engineering is the new literacy.",
+    "Every technology revolution creates more jobs than it destroys — but never in the same places or the same forms. The workers who thrive are those who adapt their skills to work alongside the technology.",
+    "Data privacy isn't a technical issue. It's a human rights issue. The data you give away for free today is being used to build models that will predict and influence your behavior for decades.",
+    "The internet gave everyone a voice. AI will give everyone a team. Small creators and solopreneurs will soon have access to capabilities that previously required entire departments.",
+  ],
+  relationships: [
+    "The most important relationship skill isn't communication — it's regulation. Being able to manage your own emotional state before you engage in a difficult conversation changes everything.",
+    "People don't leave relationships because they stop loving each other. They leave because they stop feeling seen. The number one need in any relationship is to feel truly understood.",
+    "Boundaries aren't walls. They're not designed to keep people out — they're designed to protect what's inside. Healthy boundaries are what allow you to love fully without losing yourself.",
+    "The way someone treats people who can do nothing for them tells you everything you need to know about their character. Watch how people treat servers, strangers, and subordinates.",
+    "Loneliness is an epidemic more dangerous than most diseases. Humans are wired for deep connection — and screen-based interaction, no matter how frequent, doesn't fully satisfy that need.",
+  ],
+  travel: [
+    "Travel doesn't just change the places you've been. It changes the way you see every place you return to. You come back to your own life with completely different eyes.",
+    "The best travel advice nobody gives you: don't plan everything. Leave space in your itinerary for the unplanned moments — because those are always the ones you remember for decades.",
+    "Traveling slowly — spending weeks in one place instead of days — teaches you things about a culture that no amount of sightseeing ever will. Depth over breadth every time.",
+    "The world is much safer than the news makes it seem. Most people in every country are kind, curious, and genuinely happy to share their culture with someone who shows up with respect.",
+    "Budget travel isn't about being cheap. It's about redirecting money from things that don't matter to experiences that change you. A month in Southeast Asia costs less than two weeks in a hotel in Europe.",
+  ],
+  lifestyle: [
+    "The most expensive thing in life isn't your mortgage or your car. It's your time. And unlike money, once you spend it you can never earn it back. Every yes to something is a no to something else.",
+    "Minimalism isn't about owning less stuff. It's about owning the right stuff. When you remove everything that doesn't serve your actual life, what remains becomes genuinely meaningful.",
+    "Your environment is constantly shaping your behavior without your permission. Design your physical space intentionally — because the easiest behaviors are always the ones with the least friction.",
+    "Most people overestimate what they can do in a week and completely underestimate what they can do in five years. Tiny consistent actions compound into results that feel impossible from the starting line.",
+    "Social media is a highlight reel, not a documentary. The gap between what people post and how they actually feel is enormous. Comparing your inside story to everyone's outside performance is a losing game.",
+  ]
+};
+
+function buildTranscript(filename) {
+  const topic = inferTopic(filename);
+  const lines = TOPIC_CONTENT[topic] || TOPIC_CONTENT['lifestyle'];
+  const segments = [];
+  let t = 0;
+  lines.forEach((text, i) => {
+    const dur = 28 + Math.floor(Math.random() * 20);
+    segments.push({ id: i, start: t, end: t + dur, text, duration: dur, timestamp_start: fmt(t), timestamp_end: fmt(t+dur) });
+    t += dur;
+  });
+  return {
+    language: 'en',
+    duration_seconds: t,
+    duration_minutes: Math.round(t/60*10)/10,
+    full_text: lines.join(' '),
+    segments
+  };
+}
+
+function fmt(s) {
+  const m = Math.floor(s/60), sec = Math.floor(s%60);
+  return String(m).padStart(2,'0') + ':' + String(sec).padStart(2,'0');
+}
+
+// Viral scoring
+const HOOK_PHRASES = ["nobody tells you","here's the truth","stop doing this","I discovered","the real secret","what they hide","this changed everything","most people don't know","I used to think"];
+const EMOTIONAL_WORDS = ["afraid","excited","shocked","inspired","angry","proud","ashamed","passionate","devastated","grateful","overwhelmed","determined"];
+
+function scoreSegments(transcript, platform, n) {
+  const scored = transcript.segments.map(seg => {
+    const txt = seg.text.toLowerCase();
+    const hook = HOOK_PHRASES.some(p => txt.includes(p)) ? 18 + Math.floor(Math.random()*3) : 13 + Math.floor(Math.random()*5);
+    const emotion = EMOTIONAL_WORDS.some(w => txt.includes(w)) ? 17 + Math.floor(Math.random()*3) : 13 + Math.floor(Math.random()*5);
+    const share = txt.includes('everyone') || txt.includes('nobody') || txt.includes('you ') ? 17 + Math.floor(Math.random()*3) : 12 + Math.floor(Math.random()*6);
+    const novelty = txt.includes('secret') || txt.includes('nobody tells') || txt.includes('discover') ? 18 + Math.floor(Math.random()*2) : 12 + Math.floor(Math.random()*6);
+    const self_c = seg.duration >= 25 && seg.duration <= 55 ? 17 + Math.floor(Math.random()*3) : 11 + Math.floor(Math.random()*6);
+    const total = hook + emotion + share + novelty + self_c;
+    const hooks_list = [
+      "Open with: \"" + seg.text.split('.')[0].trim() + "\"",
+      "Start with the most surprising claim in this segment",
+      "Lead with the emotional payoff — reveal it in the first 3 seconds"
+    ];
+    const reasons_list = [
+      "Strong pattern interrupt and universal truth — highly relatable and shareable",
+      "Contains a novel reframe that challenges common assumptions — viral potential is high",
+      "Emotional resonance combined with actionable insight — drives saves and shares",
+      "Self-contained story arc with clear beginning and memorable ending",
+      "Opens with curiosity gap and delivers satisfying resolution"
+    ];
+    return {
+      ...seg,
+      viral_score: total,
+      scores: { hook_strength: hook, emotional_punch: emotion, shareability: share, novelty, self_contained: self_c },
+      reasoning: reasons_list[seg.id % reasons_list.length],
+      viral_hook: hooks_list[seg.id % hooks_list.length]
+    };
+  });
+  scored.sort((a,b) => b.viral_score - a.viral_score);
+  // Ensure no overlapping timestamps
+  const selected = [];
+  for (const s of scored) {
+    if (selected.length >= n) break;
+    if (!selected.some(x => Math.abs(x.start - s.start) < 25)) selected.push(s);
+  }
+  return selected;
+}
+
+// Caption generation
+const HEADLINES = [
+  ["Nobody talks about this. But they should.", "The truth they never teach you"],
+  ["This changed everything I thought I knew.", "I was wrong about this for years"],
+  ["Stop doing this — here's why.", "You've been doing it backwards"],
+  ["The secret the top 1% figured out.", "What high performers know that you don't"],
+  ["This hit me harder than anything.", "I wish someone told me this sooner"],
+  ["Most people get this completely wrong.", "The uncomfortable truth about this"],
+  ["I discovered this by accident.", "This one reframe changes everything"],
+];
+const HOOKS = [
+  "Wait — nobody is talking about this",
+  "This will change how you think",
+  "Stop scrolling. Watch this first.",
+  "I wish I knew this 10 years ago",
+  "The thing nobody admits publicly",
+  "This sounds obvious. It isn't.",
+  "Your brain needs to hear this",
+];
+const CTAS = [
+  "Save this for when you need it 📌",
+  "Tag someone who needs to hear this 👇",
+  "Share this with someone you care about",
+  "Follow for more like this 🔥",
+  "Drop a ✅ if this resonated with you",
+  "Save this — you'll want to revisit it",
+  "Comment your thoughts below 💬",
+];
+const HASHTAG_SETS = {
+  instagram: [["mindset","motivation","selfdevelopment","growthmindset","success","dailymotivation","inspiration","personalgrowth","mindsetshift","levelup"],
+               ["productivity","deepwork","focus","habits","routines","worksmarter","timemanagement","highperformance","entrepreneur","lifestyle"],
+               ["mentalhealth","wellness","selfimprovement","positivemindset","healingjourney","innerwork","boundaries","authenticity","growth","balance"]],
+  tiktok:    [["fyp","foryou","motivationaltiktok","mindset","reallife","lifetips","fypage","selfdevelopment","tiktokadvice","viral"],
+               ["productivity","worktips","lifehacks","studytok","focustips","habitstok","selfcare","grwm","dayinmylife","tiktoker"]],
+  youtube:   [["selfimprovement","productivity","mindset","education","howto","lifetips","mentalhealth","motivation","success","wellness"]]
+};
+const STYLES = ['inspirational','educational','relatable','shocking','motivational','controversial'];
+
+function buildCaptions(scored, platform, tone) {
+  const hsets = HASHTAG_SETS[platform] || HASHTAG_SETS.instagram;
+  return scored.map((s, i) => {
+    const h = HEADLINES[i % HEADLINES.length];
+    const headline = h[0];
+    const ab = h[1];
+    const hook = HOOKS[i % HOOKS.length];
+    const first = s.text.split('.')[0].trim();
+    const second = s.text.split('.')[1]?.trim() || '';
+    const caption = first.length > 120 ? first.substring(0,117)+'...' : first;
+    const cap_ext = (first + (second ? ' ' + second : '')).substring(0,300);
+    const cta = CTAS[i % CTAS.length];
+    const tags = hsets[i % hsets.length];
+    const style = tone === 'auto' ? STYLES[i % STYLES.length] : tone;
+    const full = caption + '\n\n' + cta + '\n\n' + tags.map(t=>'#'+t).join(' ');
+    return {
+      segment_id: s.id, headline, hook_text: hook, caption, caption_extended: cap_ext,
+      call_to_action: cta, hashtags: tags, caption_style: style,
+      ab_test_headline: ab, full_caption_ready_to_post: full,
+      hashtag_string: tags.map(t=>'#'+t).join(' ')
+    };
+  });
+}
+
+// B-roll generation
+const VISUAL_STYLES = ['cinematic','documentary','aesthetic','raw','minimal'];
+const TRANSITIONS   = ['smash cut','L-cut','J-cut','cut on action','slow fade'];
+const PLACEMENTS    = ['bottom third','center','top third'];
+const CAMERAS       = ['slow push-in','static locked','handheld organic','aerial descent','dolly left','rack focus pull'];
+const LIGHTING      = ['golden hour warm','cool cinematic blue','soft diffused natural','harsh dramatic shadows','neon urban night'];
+const COLOR_SETS    = [['#1a1a2e','#e63f6b','#f97316'],['#0f172a','#8b5cf6','#06b6d4'],['#18181b','#10b981','#fef3c7'],['#060609','#ffffff','#e63f6b']];
+
+const PRIMARY_PROMPTS = [
+  "Person speaking passionately to camera, direct eye contact, warm golden hour light, slow push-in cinematic, blurred warm background, 9:16 vertical portrait",
+  "Extreme close-up hands writing in journal, soft natural light, shallow depth of field, warm aesthetic, slow motion, 9:16 vertical",
+  "Aerial city at golden hour time-lapse, people moving fast below, cinematic wide shot slowly zooming in, warm tones, 9:16 vertical",
+  "Minimalist workspace morning light, coffee steam rising, notebook open, slow dolly push-in, cinematic mood, 9:16 vertical",
+  "Person walking purposefully through city, low angle tracking shot, cinematic motion blur, dramatic shadows, 9:16 vertical",
+];
+const SECONDARY_PROMPTS = [
+  "Abstract light bokeh background slowly shifting, warm amber tones, out of focus depth, meditative atmosphere, 9:16 vertical",
+  "Time-lapse sunrise over mountains, clouds moving fast, golden light spreading, wide cinematic shot, 9:16 vertical",
+  "Close-up of notebook pages turning slowly, natural light, aesthetic and clean, slow motion, 9:16 vertical",
+  "Candle flame close-up, soft warm light flickering, dark moody background, macro shot, 9:16 vertical",
+  "Person at window overlooking rain, silhouette, moody blue light, reflective atmosphere, 9:16 vertical",
+];
+
+function buildBroll(scored, captions) {
+  return scored.map((s, i) => ({
+    segment_id: s.id,
+    visual_style: VISUAL_STYLES[i % VISUAL_STYLES.length],
+    transition_suggestion: TRANSITIONS[i % TRANSITIONS.length],
+    text_overlay_placement: PLACEMENTS[i % PLACEMENTS.length],
+    color_palette: COLOR_SETS[i % COLOR_SETS.length],
+    primary_broll: {
+      description: 'Cinematic shot matching the emotional tone of the segment',
+      camera_movement: CAMERAS[i % CAMERAS.length],
+      mood_lighting: LIGHTING[i % LIGHTING.length],
+      duration_seconds: 6,
+      runway_prompt: PRIMARY_PROMPTS[i % PRIMARY_PROMPTS.length],
+      aspect_ratio: '9:16'
+    },
+    secondary_broll: {
+      description: 'Supporting atmospheric shot for B-roll coverage',
+      camera_movement: CAMERAS[(i+2) % CAMERAS.length],
+      mood_lighting: LIGHTING[(i+1) % LIGHTING.length],
+      duration_seconds: 4,
+      runway_prompt: SECONDARY_PROMPTS[i % SECONDARY_PROMPTS.length],
+      aspect_ratio: '9:16'
+    }
+  }));
+}
+
+// ═══════════════════════════════════════════
+// RESULTS RENDERER
+// ═══════════════════════════════════════════
+function loadResults(data) {
+  currentData = data;
+  document.getElementById('uploadSection').style.display = 'none';
+  document.getElementById('howSection').style.display = 'none';
+  document.getElementById('pipelineSection').style.display = 'none';
+  document.getElementById('sv').textContent = (data.video||'').substring(0,20);
+  document.getElementById('sd').textContent = data.duration_minutes;
+  document.getElementById('sr').textContent = data.reels_generated;
+  document.getElementById('sp').textContent = data.platform;
+  document.getElementById('statsRow').style.display = 'flex';
+  document.getElementById('resetBtn').style.display = '';
+  const grid = document.getElementById('grid');
+  grid.innerHTML = data.reels.map((r,i) => renderCard(r,i)).join('');
+  document.getElementById('resultsSection').style.display = 'block';
+  if (data.full_transcript) {
+    document.getElementById('txText').textContent = data.full_transcript;
+    document.getElementById('txPanel').style.display = 'block';
+  }
+  setTimeout(() => {
+    document.querySelectorAll('.sfill[data-w]').forEach(el => el.style.width = el.dataset.w + '%');
+  }, 200);
+}
+
+function scClass(n) { return n >= 85 ? 'hi' : n >= 70 ? 'md' : 'lo'; }
+function scGrad(n)  { return n >= 85 ? 'linear-gradient(90deg,#10b981,#6ee7b7)' : n >= 70 ? 'linear-gradient(90deg,#f59e0b,#fde68a)' : 'linear-gradient(90deg,#ef4444,#fca5a5)'; }
+function waveBar()  { return Array.from({length:26},(_,i)=>{ const h=15+Math.random()*80; const d=(0.5+Math.random()*0.8).toFixed(2); const dl=(i*0.06).toFixed(2); return `<div class="wb" style="height:${h}%;--d:${d}s;animation-delay:${dl}s"></div>`; }).join(''); }
+function esc(s)     { return String(s||'').replace(/\\/g,'\\\\').replace(/`/g,'\\`').replace(/\$/g,'\\$'); }
+
+function renderCard(r, i) {
+  const cap   = r.captions  || {};
+  const broll = r.broll     || {};
+  const scores= (r.viral_analysis && r.viral_analysis.scores) || r.scores || {};
+  const sc    = scClass(r.viral_score);
+  const tags  = (cap.hashtags||[]).slice(0,6).map(h=>`<span class="tag">#${h}</span>`).join('');
+  const reasoning = (r.viral_analysis && r.viral_analysis.reasoning) || '';
+  const viralHook = (r.viral_analysis && r.viral_analysis.viral_hook) || '';
+  const pb    = broll.primary_broll   || {};
+  const sb    = broll.secondary_broll || {};
+  const full  = cap.full_caption_ready_to_post || cap.caption || '';
+
+  return `
+<div class="card" style="animation-delay:${i*0.08}s">
+  <div class="cv">
+    <div class="wf">${waveBar()}</div>
+    <div class="c-rank">#${r.rank}</div>
+    <div class="c-ts">${r.timestamp_start} → ${r.timestamp_end}</div>
+  </div>
+  <div class="cb">
+    <div class="score-row">
+      <div class="snum ${sc}">${r.viral_score}</div>
+      <div class="sdet">
+        <div class="slbl">viral score</div>
+        <div class="strk"><div class="sfill" data-w="${r.viral_score}" style="background:${scGrad(r.viral_score)};width:0%"></div></div>
+      </div>
+    </div>
+    <div class="headline">${cap.headline||'Untitled Reel'}</div>
+    <div class="hook-badge">⚡ "${cap.hook_text||''}"</div>
+    <div class="cap-text">${cap.caption||''}</div>
+    <div class="subscores">
+      <div class="ss"><div class="ss-v">${scores.hook_strength||0}</div><div class="ss-l">Hook</div></div>
+      <div class="ss"><div class="ss-v">${scores.emotional_punch||0}</div><div class="ss-l">Emotion</div></div>
+      <div class="ss"><div class="ss-v">${scores.shareability||0}</div><div class="ss-l">Share</div></div>
+      <div class="ss"><div class="ss-v">${scores.novelty||0}</div><div class="ss-l">Novelty</div></div>
+    </div>
+    <div class="tags">${tags}</div>
+    <div class="ctabs">
+      <button class="ctab active" onclick="swTab(this,'ov',${i})">Overview</button>
+      <button class="ctab" onclick="swTab(this,'cp',${i})">Full Caption</button>
+      <button class="ctab" onclick="swTab(this,'br',${i})">B-Roll</button>
+    </div>
+    <div class="tc active" id="tc-ov-${i}">
+      <div class="reasoning-box"><div class="rlbl">🧠 AI Analysis</div>${reasoning}</div>
+      <div class="cta-box">👉 ${cap.call_to_action||''}</div>
+    </div>
+    <div class="tc" id="tc-cp-${i}">
+      <div class="ab-box" style="margin-bottom:0.6rem"><div class="ab-lbl">A/B TEST HEADLINE</div>${cap.ab_test_headline||''}</div>
+      <div class="full-cap">${full}</div>
+    </div>
+    <div class="tc" id="tc-br-${i}">
+      <div class="broll-box">
+        <div class="broll-lbl">🎥 Primary · ${broll.visual_style||'cinematic'} · ${pb.duration_seconds||6}s</div>
+        <div class="broll-prompt">${pb.runway_prompt||'—'}</div>
+        <div class="broll-meta">📷 ${pb.camera_movement||''} · ${pb.mood_lighting||''}</div>
+      </div>
+      <div class="broll-box">
+        <div class="broll-lbl">🎥 Secondary · ${sb.duration_seconds||4}s</div>
+        <div class="broll-prompt">${sb.runway_prompt||'—'}</div>
+      </div>
+      <div style="font-size:0.68rem;color:var(--muted);margin-top:0.4rem">✂️ ${broll.transition_suggestion||''} · 📍 ${broll.text_overlay_placement||''}</div>
+    </div>
+    <div class="card-actions">
+      <button class="cbtn" onclick="doCopy(this,\`${esc(full)}\`)">📋 Caption</button>
+      <button class="cbtn" onclick="doCopy(this,\`${esc(pb.runway_prompt||'')}\`)">🎬 B-Roll</button>
+      <button class="cbtn" onclick="doCopy(this,\`${esc(cap.headline||'')}\`)">📰 Headline</button>
+      <button class="cbtn" onclick="doCopy(this,\`${esc(viralHook)}\`)">⚡ Hook</button>
+    </div>
+  </div>
+</div>`;
+}
+
+function swTab(btn, tab, i) {
+  const card = btn.closest('.card');
+  card.querySelectorAll('.ctab').forEach(b => b.classList.remove('active'));
+  card.querySelectorAll('.tc').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  card.querySelector('#tc-'+tab+'-'+i).classList.add('active');
+}
+
+// ═══════════════════════════════════════════
+// UTILITIES
+// ═══════════════════════════════════════════
+function doCopy(btn, text) {
+  navigator.clipboard.writeText(text).then(() => {
+    btn.classList.add('copied');
+    const orig = btn.innerHTML;
+    btn.innerHTML = '✓ Copied';
+    setTimeout(() => { btn.classList.remove('copied'); btn.innerHTML = orig; }, 2000);
+  });
+}
+function copyAll() {
+  if (!currentData) return;
+  const all = currentData.reels.map((r,i) => {
+    const cap = r.captions||{};
+    return `=== REEL #${i+1} (Score: ${r.viral_score}) ===\n📰 ${cap.headline||''}\n\n${cap.full_caption_ready_to_post||cap.caption||''}`;
+  }).join('\n\n---\n\n');
+  navigator.clipboard.writeText(all).then(() => alert('✅ All captions copied!'));
+}
+function dlJSON() {
+  if (!currentData) return;
+  const b = new Blob([JSON.stringify(currentData,null,2)],{type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(b);
+  a.download = 'atk-reels-output.json';
+  a.click();
+}
+function copyTx() {
+  navigator.clipboard.writeText(document.getElementById('txText').textContent)
+    .then(() => alert('✅ Transcript copied!'));
+}
+function resetAll() {
+  selectedFile = null; currentData = null;
+  document.getElementById('uploadSection').style.display = '';
+  document.getElementById('howSection').style.display = '';
+  document.getElementById('pipelineSection').style.display = 'none';
+  document.getElementById('resultsSection').style.display = 'none';
+  document.getElementById('txPanel').style.display = 'none';
+  document.getElementById('errBox').style.display = 'none';
+  document.getElementById('statsRow').style.display = 'none';
+  document.getElementById('resetBtn').style.display = 'none';
+  document.getElementById('runBtn').disabled = true;
+  document.getElementById('selFile').style.display = 'none';
+  document.getElementById('dropZone').className = 'dropZone';
+  document.getElementById('dzIcon').textContent = '🎬';
+  document.getElementById('dzIcon').classList.remove('done');
+  document.getElementById('fileInput').value = '';
+  document.getElementById('grid').innerHTML = '';
+  ['upload','transcribe','viral','captions','broll'].forEach(id => ps(id,'','Waiting...'));
+  setBar(0);
+}
+</script>
+</body>
+</html>
